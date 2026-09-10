@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: it0049-projects
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: master
+    rootDir: demonstration_TSA1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: CI_ENVIRONMENT
+        value: production

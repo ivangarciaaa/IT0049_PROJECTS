@@ -36,3 +36,7 @@ C:\xampp\php\php.exe spark serve
 ```
 
 When using `spark serve`, update `app.baseURL` in `.env` to `http://localhost:8080/` for that session.
+
+## Deploying to Render
+
+This repository includes a Docker deployment for Render. Create a Docker Web Service from the repository, use `demonstration_TSA1` as the Root Directory, and deploy the `master` branch. Apache serves the CodeIgniter `public` directory on port 10000.

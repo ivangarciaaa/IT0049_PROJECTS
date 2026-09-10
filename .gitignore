@@ -1,0 +1,11 @@
+/demonstration_TSA1/.env
+/demonstration_TSA1/vendor/
+/demonstration_TSA1/writable/cache/*
+!/demonstration_TSA1/writable/cache/index.html
+/demonstration_TSA1/writable/debugbar/*
+/demonstration_TSA1/writable/logs/*
+!/demonstration_TSA1/writable/logs/index.html
+/demonstration_TSA1/writable/session/*
+!/demonstration_TSA1/writable/session/index.html
+/demonstration_TSA1/writable/uploads/*
+!/demonstration_TSA1/writable/uploads/index.html
