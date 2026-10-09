@@ -9,3 +9,7 @@
 !/demonstration_TSA1/writable/session/index.html
 /demonstration_TSA1/writable/uploads/*
 !/demonstration_TSA1/writable/uploads/index.html
+
+# Generated Electric Company deployment archives
+/electriccompany_infinityfree_ready*.zip
+/electriccompany_merged_loginsession*.zip

@@ -6,7 +6,7 @@
         <div class="dashboard-heading d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
                 <p class="dashboard-eyebrow mb-1">Customer Management</p>
-                <h1 class="display-6 fw-bold text-primary-custom mb-1">Account Dashboard</h1>
+                <h1 class="dashboard-title mb-1">Account Dashboard</h1>
                 <p class="text-muted mb-0">Browse and review Puihaha Electric customer accounts.</p>
             </div>
             <div class="dashboard-session-actions">
@@ -15,7 +15,7 @@
                     Signed in as <strong><?= esc($displayName) ?></strong>
                 </span>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="<?= base_url('dashboard/account/new') ?>" class="btn btn-primary">
+                    <a href="<?= base_url('dashboard/account/new') ?>" class="btn dashboard-primary-action">
                         <i class="fas fa-plus me-2"></i>Add Account
                     </a>
                     <a href="<?= base_url() ?>" class="btn btn-outline-primary">
@@ -46,26 +46,38 @@
         <div class="row g-4 mb-4">
             <div class="col-sm-6 col-xl-3">
                 <div class="dashboard-stat stat-total">
-                    <span>Total Accounts</span>
-                    <strong><?= esc($totalAccounts) ?></strong>
+                    <span class="dashboard-stat-icon"><i class="fas fa-users"></i></span>
+                    <span class="dashboard-stat-copy">
+                        <span>Total Accounts</span>
+                        <strong><?= esc($totalAccounts) ?></strong>
+                    </span>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-3">
                 <div class="dashboard-stat stat-active">
-                    <span>Active</span>
-                    <strong><?= esc($activeAccounts) ?></strong>
+                    <span class="dashboard-stat-icon"><i class="fas fa-circle-check"></i></span>
+                    <span class="dashboard-stat-copy">
+                        <span>Active</span>
+                        <strong><?= esc($activeAccounts) ?></strong>
+                    </span>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-3">
                 <div class="dashboard-stat stat-inactive">
-                    <span>Inactive</span>
-                    <strong><?= esc($inactiveAccounts) ?></strong>
+                    <span class="dashboard-stat-icon"><i class="fas fa-circle-pause"></i></span>
+                    <span class="dashboard-stat-copy">
+                        <span>Inactive</span>
+                        <strong><?= esc($inactiveAccounts) ?></strong>
+                    </span>
                 </div>
             </div>
             <div class="col-sm-6 col-xl-3">
                 <div class="dashboard-stat stat-suspended">
-                    <span>Suspended</span>
-                    <strong><?= esc($suspendedAccounts) ?></strong>
+                    <span class="dashboard-stat-icon"><i class="fas fa-clock"></i></span>
+                    <span class="dashboard-stat-copy">
+                        <span>Suspended</span>
+                        <strong><?= esc($suspendedAccounts) ?></strong>
+                    </span>
                 </div>
             </div>
         </div>
@@ -102,7 +114,7 @@
                             </select>
                         </div>
                         <div class="col-lg-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary flex-grow-1">
+                            <button type="submit" class="btn dashboard-primary-action flex-grow-1">
                                 <i class="fas fa-search me-2"></i>Search
                             </button>
                             <a href="<?= base_url('dashboard') ?>" class="btn btn-outline-secondary" aria-label="Clear filters">

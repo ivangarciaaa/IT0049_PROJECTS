@@ -123,7 +123,8 @@ class UploadedFile extends File implements UploadedFileInterface
      * @see http://php.net/move_uploaded_file
      *
      * @param string      $targetPath Path to which to move the uploaded file.
-     * @param string|null $name       the name to rename the file to.
+     * @param string|null $name       The name to rename the file to. When null, the client-provided name is used and sanitized.
+     *                                A caller-supplied name is NOT sanitized.
      * @param bool        $overwrite  State for indicating whether to overwrite the previously generated file with the same
      *                                name or not.
      *
@@ -142,7 +143,10 @@ class UploadedFile extends File implements UploadedFileInterface
             throw HTTPException::forInvalidFile();
         }
 
-        $name ??= $this->getName();
+        if ($name === null) {
+            helper('security');
+            $name = sanitize_filename($this->getName());
+        }
         $destination = $overwrite ? $targetPath . $name : $this->getDestination($targetPath . $name);
 
         try {
@@ -302,7 +306,9 @@ class UploadedFile extends File implements UploadedFileInterface
      */
     public function getExtension(): string
     {
-        return $this->guessExtension() ?: $this->getClientExtension();
+        $guessExtension = $this->guessExtension();
+
+        return $guessExtension !== '' ? $guessExtension : $this->getClientExtension();
     }
 
     /**
@@ -323,7 +329,7 @@ class UploadedFile extends File implements UploadedFileInterface
      */
     public function getClientExtension(): string
     {
-        return pathinfo($this->originalName, PATHINFO_EXTENSION) ?? '';
+        return pathinfo($this->originalName, PATHINFO_EXTENSION);
     }
 
     /**

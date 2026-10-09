@@ -24,7 +24,7 @@
     </div>
 </section>
 <!-- Features Section -->
-<section class="section-padding bg-light-custom">
+<section class="section-padding bg-light-custom home-cta">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col-lg-8 mx-auto">
@@ -221,7 +221,7 @@
                     needs. Our expert team is ready to help you with safe, reliable, and efficient electrical
                     solutions.</p>
             </div>
-            <div class="col-lg-4 text-lg-end">
+            <div class="col-lg-4 text-lg-end home-cta-actions">
                 <a href="<?= base_url('contact') ?>" class="btn btn-primary btn-lg me-3">Get Free
                     Quote</a>
                 <a href="tel:5551234567" class="btn btn-outline-primary btn-lg">

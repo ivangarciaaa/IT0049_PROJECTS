@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace CodeIgniter\Database\SQLSRV;
 
 use CodeIgniter\Database\BaseBuilder;
+use CodeIgniter\Database\BaseResult;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Database\Exceptions\DataException;
+use CodeIgniter\Database\Query;
 use CodeIgniter\Database\RawSql;
 use CodeIgniter\Database\ResultInterface;
 use Config\Feature;
@@ -122,7 +124,7 @@ class Builder extends BaseBuilder
             $cond = ' ON ' . $cond;
         } else {
             // Split multiple conditions
-            if (preg_match_all('/\sAND\s|\sOR\s/i', $cond, $joints, PREG_OFFSET_CAPTURE)) {
+            if (preg_match_all('/\sAND\s|\sOR\s/i', $cond, $joints, PREG_OFFSET_CAPTURE) >= 1) {
                 $conditions = [];
                 $joints     = $joints[0];
                 array_unshift($joints, ['', 0]);
@@ -269,7 +271,7 @@ class Builder extends BaseBuilder
         if ($this->castTextToInt) {
             $values = [$column => "CONVERT(VARCHAR(MAX),CONVERT(INT,CONVERT(VARCHAR(MAX), {$column})) - {$value})"];
         } else {
-            $values = [$column => "{$column} + {$value}"];
+            $values = [$column => "{$column} - {$value}"];
         }
 
         $sql = $this->_update($this->QBFrom[0], $values);
@@ -321,7 +323,7 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * Add permision statements for index value inserts
+     * Add permission statements for index value inserts
      */
     private function addIdentity(string $fullTable, string $insert): string
     {
@@ -337,7 +339,7 @@ class Builder extends BaseBuilder
         // DatabaseException:
         //   [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The number of
         //   rows provided for a FETCH clause must be greater then zero.
-        $limitZeroAsAll = config(Feature::class)->limitZeroAsAll ?? true;
+        $limitZeroAsAll = config(Feature::class)->limitZeroAsAll ?? true; // @phpstan-ignore nullCoalesce.property
         if (! $limitZeroAsAll && $this->QBLimit === 0) {
             return "SELECT * \nFROM " . $this->_fromTables() . ' WHERE 1=0 ';
         }
@@ -358,7 +360,7 @@ class Builder extends BaseBuilder
     /**
      * Compiles a replace into string and runs the query
      *
-     * @return mixed
+     * @return BaseResult|false|Query|string
      *
      * @throws DatabaseException
      */
@@ -462,7 +464,7 @@ class Builder extends BaseBuilder
      *
      * Handle float return value
      *
-     * @return BaseBuilder
+     * @return $this
      */
     protected function maxMinAvgSum(string $select = '', string $alias = '', string $type = 'MAX')
     {
@@ -518,7 +520,7 @@ class Builder extends BaseBuilder
 
         $query = $query->getRow();
 
-        if ($reset === true) {
+        if ($reset) {
             $this->resetSelect();
         }
 
@@ -536,9 +538,9 @@ class Builder extends BaseBuilder
     /**
      * Compiles a delete string and runs the query
      *
-     * @param mixed $where
+     * @param array<int|string, mixed>|RawSql|string $where
      *
-     * @return mixed
+     * @return bool|string
      *
      * @throws DatabaseException
      */
@@ -576,7 +578,7 @@ class Builder extends BaseBuilder
      *
      * Generates a query string based on which functions were used.
      *
-     * @param bool $selectOverride
+     * @param false|string $selectOverride
      */
     protected function compileSelect($selectOverride = false): string
     {
@@ -584,7 +586,7 @@ class Builder extends BaseBuilder
         if ($selectOverride !== false) {
             $sql = $selectOverride;
         } else {
-            $sql = (! $this->QBDistinct) ? 'SELECT ' : 'SELECT DISTINCT ';
+            $sql = $this->QBDistinct ? 'SELECT DISTINCT ' : 'SELECT ';
 
             // SQL Server can't work with select * if group by is specified
             if (empty($this->QBSelect) && $this->QBGroupBy !== [] && is_array($this->QBGroupBy)) {
@@ -624,7 +626,7 @@ class Builder extends BaseBuilder
             . $this->compileOrderBy(); // ORDER BY
 
         // LIMIT
-        $limitZeroAsAll = config(Feature::class)->limitZeroAsAll ?? true;
+        $limitZeroAsAll = config(Feature::class)->limitZeroAsAll ?? true; // @phpstan-ignore nullCoalesce.property
         if ($limitZeroAsAll) {
             if ($this->QBLimit) {
                 $sql = $this->_limit($sql . "\n");
@@ -644,7 +646,7 @@ class Builder extends BaseBuilder
      */
     public function get(?int $limit = null, int $offset = 0, bool $reset = true)
     {
-        $limitZeroAsAll = config(Feature::class)->limitZeroAsAll ?? true;
+        $limitZeroAsAll = config(Feature::class)->limitZeroAsAll ?? true; // @phpstan-ignore nullCoalesce.property
         if ($limitZeroAsAll && $limit === 0) {
             $limit = null;
         }
@@ -694,12 +696,12 @@ class Builder extends BaseBuilder
 
             $identityInFields = in_array($tableIdentity, $keys, true);
 
-            $fieldNames = array_map(static fn ($columnName) => trim($columnName, '"'), $keys);
+            $fieldNames = array_map(static fn ($columnName): string => trim($columnName, '"'), $keys);
 
             if (empty($constraints)) {
                 $tableIndexes = $this->db->getIndexData($table);
 
-                $uniqueIndexes = array_filter($tableIndexes, static function ($index) use ($fieldNames) {
+                $uniqueIndexes = array_filter($tableIndexes, static function ($index) use ($fieldNames): bool {
                     $hasAllFields = count(array_intersect($index->fields, $fieldNames)) === count($index->fields);
 
                     return $index->type === 'PRIMARY' && $hasAllFields;
@@ -707,7 +709,7 @@ class Builder extends BaseBuilder
 
                 // if no primary found then look for unique - since indexes have no order
                 if ($uniqueIndexes === []) {
-                    $uniqueIndexes = array_filter($tableIndexes, static function ($index) use ($fieldNames) {
+                    $uniqueIndexes = array_filter($tableIndexes, static function ($index) use ($fieldNames): bool {
                         $hasAllFields = count(array_intersect($index->fields, $fieldNames)) === count($index->fields);
 
                         return $index->type === 'UNIQUE' && $hasAllFields;
@@ -750,7 +752,7 @@ class Builder extends BaseBuilder
             $sql .= implode(
                 ' AND ',
                 array_map(
-                    static fn ($key, $value) => (
+                    static fn ($key, $value): RawSql|string => (
                         ($value instanceof RawSql && is_string($key))
                         ?
                         $fullTableName . '.' . $key . ' = ' . $value
@@ -764,8 +766,8 @@ class Builder extends BaseBuilder
                         )
                     ),
                     array_keys($constraints),
-                    $constraints
-                )
+                    $constraints,
+                ),
             ) . ")\n";
 
             $sql .= "WHEN MATCHED THEN UPDATE SET\n";
@@ -773,12 +775,12 @@ class Builder extends BaseBuilder
             $sql .= implode(
                 ",\n",
                 array_map(
-                    static fn ($key, $value) => $key . ($value instanceof RawSql ?
+                    static fn ($key, $value): string => $key . ($value instanceof RawSql ?
                         ' = ' . $value :
                     " = {$alias}.{$value}"),
                     array_keys($updateFields),
-                    $updateFields
-                )
+                    $updateFields,
+                ),
             );
 
             $sql .= "\nWHEN NOT MATCHED THEN INSERT (" . implode(', ', $keys) . ")\nVALUES ";
@@ -787,13 +789,13 @@ class Builder extends BaseBuilder
                 '(' . implode(
                     ', ',
                     array_map(
-                        static fn ($columnName) => $columnName === $tableIdentity
+                        static fn ($columnName): string => $columnName === $tableIdentity
                     ? "CASE WHEN {$alias}.{$columnName} IS NULL THEN (SELECT "
                     . 'isnull(IDENT_CURRENT(\'' . $fullTableName . '\')+IDENT_INCR(\''
                     . $fullTableName . "'),1)) ELSE {$alias}.{$columnName} END"
                     : "{$alias}.{$columnName}",
-                        $keys
-                    )
+                        $keys,
+                    ),
                 ) . ');'
             );
 

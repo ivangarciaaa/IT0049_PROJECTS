@@ -355,7 +355,7 @@
     </div>
 </section>
 <!-- Emergency Services -->
-<section class="section-padding bg-danger text-white">
+<section class="section-padding bg-danger text-white services-emergency">
 <div class="container">
     <div class="row text-center">
         <div class="col-lg-8 mx-auto">
@@ -387,7 +387,7 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-5">
+            <div class="mt-5 services-emergency-actions">
                 <a href="tel:5551234567" class="btn btn-warning btn-lg me-3">
                     <i class="fas fa-phone me-2"></i>Emergency: (555) 123-4567
                 </a>
@@ -456,7 +456,7 @@ justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
     </div>
 </section>
 <!-- Call to Action -->
-<section class="section-padding bg-light-custom">
+<section class="section-padding bg-light-custom services-cta">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
@@ -465,7 +465,7 @@ justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
                     expert team is ready to help you with all your electrical needs, from simple repairs to complex
                     installations.</p>
             </div>
-            <div class="col-lg-4 text-lg-end">
+            <div class="col-lg-4 text-lg-end services-cta-actions">
                 <a href="<?= base_url('contact') ?>" class="btn btn-primary btn-lg me-3">Get Free
                     Quote</a>
                 <a href="tel:5551234567" class="btn btn-outline-primary btn-lg">

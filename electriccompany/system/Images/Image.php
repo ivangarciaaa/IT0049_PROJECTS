@@ -26,14 +26,14 @@ class Image extends File
     /**
      * The original image width in pixels.
      *
-     * @var float|int
+     * @var int
      */
     public $origWidth;
 
     /**
      * The original image height in pixels.
      *
-     * @var float|int
+     * @var int
      */
     public $origHeight;
 
@@ -102,8 +102,9 @@ class Image extends File
     public function getProperties(bool $return = false)
     {
         $path = $this->getPathname();
+        $vals = getimagesize($path);
 
-        if (! $vals = getimagesize($path)) {
+        if ($vals === false) {
             throw ImageException::forFileNotSupported();
         }
 
@@ -116,7 +117,7 @@ class Image extends File
 
         $mime = 'image/' . ($types[$vals[2]] ?? 'jpg');
 
-        if ($return === true) {
+        if ($return) {
             return [
                 'width'      => $vals[0],
                 'height'     => $vals[1],

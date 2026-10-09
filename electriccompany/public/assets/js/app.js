@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize all components
     initScrollAnimations();
     initFormEnhancements();
+    initLoginExperience();
     initNavigationEffects();
     initCounterAnimations();
     /**
@@ -72,12 +73,63 @@ document.addEventListener('DOMContentLoaded', function () {
         // Password strength indicator
         const passwordInputs = document.querySelectorAll('input[type="password"]');
         passwordInputs.forEach(input => {
-            if (input.name === 'password') {
+            if (input.name === 'password' && input.dataset.strength !== 'off') {
                 input.addEventListener('input', function () {
                     const strength = calculatePasswordStrength(this.value);
                     updatePasswordStrengthIndicator(this, strength);
                 });
             }
+        });
+    }
+    /**
+    * Login-only interactions
+    */
+    function initLoginExperience() {
+        const shell = document.querySelector('[data-login-shell]');
+        if (!shell) {
+            return;
+        }
+
+        const stage = shell.closest('.login-stage');
+        const passwordInput = shell.querySelector('#login_password');
+        const passwordToggle = shell.querySelector('[data-password-toggle]');
+
+        if (passwordInput && passwordToggle) {
+            passwordToggle.addEventListener('click', function () {
+                const showingPassword = passwordInput.type === 'text';
+                passwordInput.type = showingPassword ? 'password' : 'text';
+                this.setAttribute('aria-pressed', String(!showingPassword));
+                this.setAttribute('aria-label', showingPassword ? 'Show password' : 'Hide password');
+
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye', showingPassword);
+                icon.classList.toggle('fa-eye-slash', !showingPassword);
+                passwordInput.focus({ preventScroll: true });
+            });
+        }
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const finePointer = window.matchMedia('(pointer: fine)').matches;
+        if (!stage || reduceMotion || !finePointer) {
+            return;
+        }
+
+        stage.addEventListener('pointermove', function (event) {
+            const bounds = shell.getBoundingClientRect();
+            const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+            const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height));
+
+            shell.style.setProperty('--tilt-x', `${(0.5 - y) * 2.2}deg`);
+            shell.style.setProperty('--tilt-y', `${(x - 0.5) * 2.8}deg`);
+            shell.style.setProperty('--glow-x', `${x * 100}%`);
+            shell.style.setProperty('--glow-y', `${y * 100}%`);
+        });
+
+        stage.addEventListener('pointerleave', function () {
+            shell.style.setProperty('--tilt-x', '0deg');
+            shell.style.setProperty('--tilt-y', '0deg');
+            shell.style.setProperty('--glow-x', '50%');
+            shell.style.setProperty('--glow-y', '50%');
         });
     }
     /**

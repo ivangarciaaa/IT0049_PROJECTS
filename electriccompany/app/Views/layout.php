@@ -1,3 +1,11 @@
+<?php
+$customCssVersion = file_exists(FCPATH . 'assets/css/custom.css')
+    ? (string) filemtime(FCPATH . 'assets/css/custom.css')
+    : '1';
+$appJsVersion = file_exists(FCPATH . 'assets/js/app.js')
+    ? (string) filemtime(FCPATH . 'assets/js/app.js')
+    : '1';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +15,7 @@
     <title><?= isset($title) ? $title : 'Puihaha Electric' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="<?= base_url('assets/css/custom.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/css/custom.css') . '?v=' . esc($customCssVersion, 'url') ?>" rel="stylesheet">
     <style>
         :root {
             --primary-color: #1e40af;
@@ -266,7 +274,7 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="<?= base_url('assets/js/app.js') ?>"></script>
+    <script src="<?= base_url('assets/js/app.js') . '?v=' . esc($appJsVersion, 'url') ?>"></script>
 </body>
 
 </html>
